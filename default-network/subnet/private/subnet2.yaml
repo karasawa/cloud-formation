@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'private subnet for nesting'
+
+Parameters:
+  TagName:
+    Type: String
+    Default: MyPrivateSubnet
+  VPC:
+    Type: AWS::EC2::VPC::Id
+
+Resources:
+  PrivateRouteTable:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route/route.yaml
+      Parameters:
+        VPC: !Ref VPC
+
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      Tags:
+        - Key: Name
+          Value: !Ref TagName
+
+  PrivateSubnetTableAssociation: 
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      SubnetId: !Ref PrivateSubnet
+      RouteTableId: !GetAtt PrivateRouteTable.Outputs.PrivateRouteTableID
+
+Outputs:
+  SubnetID: 
+    Value: !Ref PrivateSubnet

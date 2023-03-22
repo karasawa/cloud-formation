@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 for nesting
+
+Parameters:
+  KeyName:
+    Type: String
+  Subnet:
+    Type: AWS::EC2::Subnet::Id
+  VPC:
+    Type: AWS::EC2::VPC::Id
+  TagName :
+    Type: String
+    Default: MyInstance
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      HVM64: ami-02f3f602d23f1659d
+    us-west-1:
+      HVM64: ami-06604eb73be76c003
+    eu-west-1:
+      HVM64: ami-0779c326801d5a843
+    ap-northeast-1:
+      HVM64: ami-067871d950411e643
+    ap-southeast-1:
+      HVM64: ami-0e2e292a9c4fb2f29
+
+Resources:
+  EC2SG:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sg.yaml
+      Parameters:
+        VPC: !Ref VPC
+  
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          SubnetId: !Ref Subnet
+          GroupSet:
+            - !GetAtt EC2SG.Outputs.SGID
+      UserData: !Base64 |
+        #!/bin/bash
+        yum update -y
+        amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+        yum install -y httpd mariadb-server
+        systemctl start httpd
+        systemctl enable httpd
+        usermod -a -G apache ec2-user
+        chown -R ec2-user:apache /var/www
+        chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+        find /var/www -type f -exec sudo chmod 0664 {} \;
+        echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
+        systemctl start mariadb
+        mysqladmin password hogehoge1111
+        yum install php-mbstring php-xml -y
+        systemctl restart httpd
+        systemctl restart php-fpm
+        wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
+        mkdir /var/www/html/phpMyAdmin && tar -xvzf phpMyAdmin-latest-all-languages.tar.gz -C /var/www/html/phpMyAdmin --strip-components 1
+        rm phpMyAdmin-latest-all-languages.tar.gz
+        systemctl start mariadb
+        
+      Tags:
+          - Key: Name
+            Value: !Ref TagName

@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: private subnet for nesting
+
+Parameters:
+  TagName:
+    Type: String
+    Default: MyPrivateSubnet
+  VPC:
+    Type: AWS::EC2::VPC::Id
+
+Resources:
+  PrivateRouteTable: 
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref VPC 
+      Tags: 
+        - Key: Name
+          Value: !Ref TagName
+
+Outputs:
+  PrivateRouteTableID: 
+    Value: !Ref PrivateRouteTable

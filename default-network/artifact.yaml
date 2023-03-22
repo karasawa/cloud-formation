@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Amazon Web Services Network & server construction
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/7fdfc68cc7c9b34287214027b3219ee2.template
+      Parameters:
+        TagName: MyVpc
+  PrivateSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/f0e3dfa8b59f8f1ce669048548d046bb.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+  PrivateSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/54353f2cd88e893009429095a1046be2.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+  PublicSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/30646fc08a8642dfaba99ec6f497f590.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+  PublicSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/26b9bb11f632a1f51669cf61605d99ac.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+  EC2Instance1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/bc2766c122dd36f130699f4bd7a9c3d3.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+        KeyName: MyInstance
+        Subnet:
+          Fn::GetAtt:
+          - PublicSubnet1
+          - Outputs.SubnetID
+  EC2Instance2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-stack-karasawa/bc2766c122dd36f130699f4bd7a9c3d3.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+        KeyName: MyInstance
+        Subnet:
+          Fn::GetAtt:
+          - PublicSubnet2
+          - Outputs.SubnetID

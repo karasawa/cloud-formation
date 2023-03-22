@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Amazon Web Services Network & server construction
+
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: vpc/vpc.yaml
+      Parameters:
+        TagName : MyVpc
+  
+  PrivateSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: subnet/private/subnet1.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+  
+  PrivateSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: subnet/private/subnet2.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+  
+  PublicSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: subnet/public/subnet1.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+
+  PublicSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: subnet/public/subnet2.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+
+  EC2Instance1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ec2/ec2.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+        KeyName: MyInstance
+        Subnet: !GetAtt PublicSubnet1.Outputs.SubnetID
+
+  EC2Instance2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ec2/ec2.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+        KeyName: MyInstance
+        Subnet: !GetAtt PublicSubnet2.Outputs.SubnetID

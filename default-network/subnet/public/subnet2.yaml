@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: public subnet for nesting
+
+Parameters:
+  TagName:
+    Type: String
+    Default: MyPublicSubnet
+  VPC:
+    Type: AWS::EC2::VPC::Id
+
+Resources:
+  PublicRouteTable:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route/route.yaml
+      Parameters:
+        VPC: !Ref VPC
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      Tags:
+        - Key: Name
+          Value: !Ref TagName
+  
+  PublicSubnetTableAssociation: 
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !GetAtt PublicRouteTable.Outputs.PublicRouteTableID
+
+Outputs:
+  SubnetID: 
+    Value: !Ref PublicSubnet
