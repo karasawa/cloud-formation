@@ -7,15 +7,31 @@ Parameters:
     Default: MyPublicSubnet
   VPC:
     Type: AWS::EC2::VPC::Id
+  InternetGateway:
+    Type: String
 
 Resources:
-  PublicRouteTable:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: route/route.yaml
-      Parameters:
-        VPC: !Ref VPC
+# ------------------------------------------------------------#
+#  Route Table
+# ------------------------------------------------------------#
+  PublicRouteTable: 
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref VPC 
+      Tags: 
+        - Key: Name
+          Value: !Ref TagName
 
+  PublicRoute: 
+    Type: AWS::EC2::Route
+    Properties: 
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+# ------------------------------------------------------------#
+#  Public Subnet
+# ------------------------------------------------------------#
   PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties: 
@@ -32,8 +48,8 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: 
       SubnetId: !Ref PublicSubnet
-      RouteTableId: !GetAtt PublicRouteTable.Outputs.PublicRouteTableID
-
+      RouteTableId: !Ref PublicRouteTable
+  
 Outputs:
   SubnetID: 
     Value: !Ref PublicSubnet

@@ -10,6 +10,9 @@ Parameters:
     Type: String
     Default: MySG
 
+# ------------------------------------------------------------#
+#  Security Group
+# ------------------------------------------------------------#
 Resources:
   EC2SG:
     Type: AWS::EC2::SecurityGroup

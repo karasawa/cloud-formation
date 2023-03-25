@@ -10,6 +10,9 @@ Parameters:
     Default: MyVpc
   
 Resources:
+# ------------------------------------------------------------#
+#  VPC
+# ------------------------------------------------------------#
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -18,6 +21,24 @@ Resources:
         - Key: Name
           Value: !Ref TagName
 
+# ------------------------------------------------------------#
+#  IGW
+# ------------------------------------------------------------#
+  InternetGateway: 
+    Type: AWS::EC2::InternetGateway
+    Properties: 
+      Tags: 
+        - Key: Name
+          Value: !Ref TagName
+  
+  InternetGatewayAttachment: 
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: 
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
 Outputs:
   VPCID: 
     Value: !Ref VPC
+  InternetGatewayID:
+    Value: !Ref InternetGateway

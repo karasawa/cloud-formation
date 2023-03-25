@@ -26,13 +26,19 @@ Mappings:
       HVM64: ami-0e2e292a9c4fb2f29
 
 Resources:
+# ------------------------------------------------------------#
+#  Security Group
+# ------------------------------------------------------------#
   EC2SG:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: sg.yaml
       Parameters:
         VPC: !Ref VPC
-  
+
+# ------------------------------------------------------------#
+#  EC2
+# ------------------------------------------------------------#
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties: 

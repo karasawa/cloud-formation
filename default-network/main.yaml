@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Amazon Web Services Network & server construction
 
 Resources:
+# ------------------------------------------------------------#
+#  VPC
+# ------------------------------------------------------------#
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -9,6 +12,28 @@ Resources:
       Parameters:
         TagName : MyVpc
   
+# ------------------------------------------------------------#
+#  Public Subnet
+# ------------------------------------------------------------#
+  PublicSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: subnet/public/subnet1.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+        InternetGateway: !GetAtt VPC.Outputs.InternetGatewayID
+
+  PublicSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: subnet/public/subnet2.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+        InternetGateway: !GetAtt VPC.Outputs.InternetGatewayID
+
+# ------------------------------------------------------------#
+#  Private Subnet
+# ------------------------------------------------------------#
   PrivateSubnet1:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -22,28 +47,17 @@ Resources:
       TemplateURL: subnet/private/subnet2.yaml
       Parameters:
         VPC: !GetAtt VPC.Outputs.VPCID
-  
-  PublicSubnet1:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: subnet/public/subnet1.yaml
-      Parameters:
-        VPC: !GetAtt VPC.Outputs.VPCID
 
-  PublicSubnet2:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: subnet/public/subnet2.yaml
-      Parameters:
-        VPC: !GetAtt VPC.Outputs.VPCID
-
+# ------------------------------------------------------------#
+#  EC2
+# ------------------------------------------------------------#
   EC2Instance1:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: ec2/ec2.yaml
       Parameters:
         VPC: !GetAtt VPC.Outputs.VPCID
-        KeyName: MyInstance
+        KeyName: demo
         Subnet: !GetAtt PublicSubnet1.Outputs.SubnetID
 
   EC2Instance2:
@@ -52,5 +66,5 @@ Resources:
       TemplateURL: ec2/ec2.yaml
       Parameters:
         VPC: !GetAtt VPC.Outputs.VPCID
-        KeyName: MyInstance
+        KeyName: demo
         Subnet: !GetAtt PublicSubnet2.Outputs.SubnetID
