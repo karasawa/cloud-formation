@@ -53,26 +53,13 @@ Resources:
             - !GetAtt EC2SG.Outputs.SGID
       UserData: !Base64 |
         #!/bin/bash
-        yum update -y
-        amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-        yum install -y httpd mariadb-server
-        systemctl start httpd
-        systemctl enable httpd
-        usermod -a -G apache ec2-user
-        chown -R ec2-user:apache /var/www
-        chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
-        find /var/www -type f -exec sudo chmod 0664 {} \;
-        echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
-        systemctl start mariadb
-        mysqladmin password hogehoge1111
-        yum install php-mbstring php-xml -y
-        systemctl restart httpd
-        systemctl restart php-fpm
-        wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
-        mkdir /var/www/html/phpMyAdmin && tar -xvzf phpMyAdmin-latest-all-languages.tar.gz -C /var/www/html/phpMyAdmin --strip-components 1
-        rm phpMyAdmin-latest-all-languages.tar.gz
-        systemctl start mariadb
-        
+        sudo yum -y update
+        sudo yum install -y git nginx postgresql15.x86_64
+        sudo systemctl enable nginx
+        sudo systemctl start nginx        
       Tags:
           - Key: Name
             Value: !Ref TagName
+Outputs:
+  EC2InstancePrivateIP: 
+    Value: !Ref !GetAtt EC2Instance.PrivateIP

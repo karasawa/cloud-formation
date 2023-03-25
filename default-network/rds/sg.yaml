@@ -4,38 +4,39 @@ Parameters:
   MyIP:
     Type: String
     Default: 0.0.0.0/0
+  EC2Instance1:
+    Type: String
+  EC2Instance2:
+    Type: String
   VPC:
     Type: AWS::EC2::VPC::Id
   TagName :
     Type: String
-    Default: MySG
+    Default: MyRdsSG
 
 # ------------------------------------------------------------#
 #  Security Group
 # ------------------------------------------------------------#
 Resources:
-  EC2SG:
+  RdsSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "test demo"
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: !Ref MyIP
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref MyIP
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !GetAtt EC2Instance1.Outputs.EC2InstancePrivateIP
+      SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: !Ref MyIP
+          CidrIp: !GetAtt EC2Instance1.Outputs.EC2InstancePrivateIP
       Tags:
         - Key: Name
           Value: !Ref TagName
 
 Outputs:
   SGID: 
-    Value: !Ref EC2SG
+    Value: !Ref RdsSG

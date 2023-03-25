@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 for nesting
+
+Parameters:
+  Subnet1:
+    Type: AWS::EC2::Subnet::Id
+  Subnet2:
+    Type: AWS::EC2::Subnet::Id
+  VPC:
+    Type: AWS::EC2::VPC::Id
+  EC2Instance1:
+    Type: String
+  EC2Instance2:
+    Type: String
+  TagName :
+    Type: String
+    Default: MyRds
+  Username :
+    Type: String
+    Default: postgres
+  Password :
+    Type: String
+    Default: postgres1234
+
+Resources:
+# ------------------------------------------------------------#
+#  Security Group
+# ------------------------------------------------------------#
+  RdsSG:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sg.yaml
+      Parameters:
+        VPC: !Ref VPC
+        EC2Instance1: !Ref EC2Instance1
+        EC2Instance2: !Ref EC2Instance2
+
+# ------------------------------------------------------------#
+#  Subnet Group
+# ------------------------------------------------------------#
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Ref TagName
+      DBSubnetGroupDescription: !Ref TagName
+      SubnetIds:
+      - !Ref Subnet1
+      - !Ref Subnet2
+      Tags:
+      -
+        Key: Name
+        Value: !Ref TagName
+
+# ------------------------------------------------------------#
+#  RDS
+# ------------------------------------------------------------#
+  RDSInstance:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      DBInstanceIdentifier: !Ref TagName
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
+      # EngineVersion: 
+      MasterUsername: !Ref Username
+      MasterUserPassword: !Ref Password
+      DBName: demo
+      BackupRetentionPeriod: 0
+      MultiAZ: true
+      PubliclyAccessible: false
+      StorageType: gp2
+      AllocatedStorage: 20
+      StorageEncrypted: true
+      # KmsKeyId: 
+      CopyTagsToSnapshot: false
+      DeletionProtection: false
+      DeleteAutomatedBackups: true
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      VPCSecurityGroups:
+      - !GetAtt RdsSG.Outputs.SGID
+      Tags:
+      -
+        Key: Name
+        Value: !Ref TagName
