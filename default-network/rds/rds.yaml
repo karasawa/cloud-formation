@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: EC2 for nesting
+Description: RDS for nesting
 
 Parameters:
   Subnet1:
@@ -8,10 +8,6 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
   VPC:
     Type: AWS::EC2::VPC::Id
-  EC2Instance1:
-    Type: String
-  EC2Instance2:
-    Type: String
   TagName :
     Type: String
     Default: MyRds
@@ -26,14 +22,12 @@ Resources:
 # ------------------------------------------------------------#
 #  Security Group
 # ------------------------------------------------------------#
-  RdsSG:
+  RDSSG:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: sg.yaml
       Parameters:
         VPC: !Ref VPC
-        EC2Instance1: !Ref EC2Instance1
-        EC2Instance2: !Ref EC2Instance2
 
 # ------------------------------------------------------------#
 #  Subnet Group
@@ -76,7 +70,7 @@ Resources:
       DeleteAutomatedBackups: true
       DBSubnetGroupName: !Ref RDSSubnetGroup
       VPCSecurityGroups:
-      - !GetAtt RdsSG.Outputs.SGID
+      - !GetAtt RDSSG.Outputs.SGID
       Tags:
       -
         Key: Name

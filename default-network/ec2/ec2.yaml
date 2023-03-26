@@ -61,5 +61,5 @@ Resources:
           - Key: Name
             Value: !Ref TagName
 Outputs:
-  EC2InstancePrivateIP: 
-    Value: !Ref !GetAtt EC2Instance.PrivateIP
+  EC2InstanceID: 
+    Value: !Ref EC2Instance

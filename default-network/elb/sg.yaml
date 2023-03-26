@@ -8,21 +8,21 @@ Parameters:
     Type: AWS::EC2::VPC::Id
   TagName :
     Type: String
-    Default: MyRDSSG
+    Default: MyELBSG
 
 # ------------------------------------------------------------#
 #  Security Group
 # ------------------------------------------------------------#
 Resources:
-  RDSSG:
+  ELBSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "test demo"
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
+          FromPort: 80
+          ToPort: 80
           CidrIp: !Ref MyIP
       Tags:
         - Key: Name
@@ -30,4 +30,4 @@ Resources:
 
 Outputs:
   SGID: 
-    Value: !Ref RDSSG
+    Value: !Ref ELBSG

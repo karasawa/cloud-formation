@@ -79,10 +79,10 @@ Resources:
           Fn::GetAtt:
           - PublicSubnet2
           - Outputs.SubnetID
-  RDS:
+  ELB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-demo/8b08184cb35de42c4762f823e6ecd0b5.template
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-demo/7e480ded8e6b7c3a9afa9288a7d9743c.template
       Parameters:
         VPC:
           Fn::GetAtt:
@@ -96,5 +96,28 @@ Resources:
           Fn::GetAtt:
           - PublicSubnet2
           - Outputs.SubnetID
-        EC2Instance1: EC2Instance1.Outputs.EC2InstanceID
-        EC2Instance2: EC2Instance2.Outputs.EC2InstanceID
+        EC2InstanceID1:
+          Fn::GetAtt:
+          - EC2Instance1
+          - Outputs.EC2InstanceID
+        EC2InstanceID2:
+          Fn::GetAtt:
+          - EC2Instance2
+          - Outputs.EC2InstanceID
+  RDS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.ap-northeast-1.amazonaws.com/nested-demo/f08ad7f14e667ddf70dd2e8c54066064.template
+      Parameters:
+        VPC:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.VPCID
+        Subnet1:
+          Fn::GetAtt:
+          - PrivateSubnet1
+          - Outputs.SubnetID
+        Subnet2:
+          Fn::GetAtt:
+          - PrivateSubnet2
+          - Outputs.SubnetID

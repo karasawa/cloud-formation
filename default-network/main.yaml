@@ -70,6 +70,20 @@ Resources:
         Subnet: !GetAtt PublicSubnet2.Outputs.SubnetID
 
 # ------------------------------------------------------------#
+#  ELB
+# ------------------------------------------------------------#
+  ELB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: elb/elb.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPCID
+        Subnet1: !GetAtt PublicSubnet1.Outputs.SubnetID
+        Subnet2: !GetAtt PublicSubnet2.Outputs.SubnetID
+        EC2InstanceID1: !GetAtt EC2Instance1.Outputs.EC2InstanceID
+        EC2InstanceID2: !GetAtt EC2Instance2.Outputs.EC2InstanceID
+
+# ------------------------------------------------------------#
 #  RDS
 # ------------------------------------------------------------#
   RDS:
@@ -78,7 +92,5 @@ Resources:
       TemplateURL: rds/rds.yaml
       Parameters:
         VPC: !GetAtt VPC.Outputs.VPCID
-        Subnet1: !GetAtt PublicSubnet1.Outputs.SubnetID
-        Subnet2: !GetAtt PublicSubnet2.Outputs.SubnetID
-        EC2Instance1: !GetAtt EC2Instance1.Outputs.EC2InstancePrivateIP
-        EC2Instance2: !GetAtt EC2Instance2.Outputs.EC2InstancePrivateIP
+        Subnet1: !GetAtt PrivateSubnet1.Outputs.SubnetID
+        Subnet2: !GetAtt PrivateSubnet2.Outputs.SubnetID
